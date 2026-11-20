@@ -40,7 +40,10 @@ class Floor:
                  This function is used to recalculate requests whenever
                  the people on this floor are added or removed.
         """
-        # TO DO
+
+        #iterate through each item in people
+        #see if people need up or down
+        
         pass
 
     def add_person(self, new_person: Person, request: int) -> None:
@@ -51,8 +54,15 @@ class Floor:
                   Updates has_up_request or has_down_request based on value of
                   request
         """
-        # TO DO
-        pass
+
+        if (len(self.people) < MAX_PEOPLE_PER_FLOOR):
+            self.people.append(new_person)
+            if (new_person.get_current_floor() > request):
+                self.has_down_request = True
+                self.has_up_request = False
+            else:
+                self.has_down_request = False
+                self.has_up_request = True
 
     def remove_people(
         self,
@@ -69,7 +79,12 @@ class Floor:
                   After removals, calls reset_requests() to update
                   has_up_request and has_down_request.
         """
-        # TO DO
+        for i in range(0, max(indices_to_remove)-1):
+            if i in indices_to_remove:
+                self.people.pop(i)
+
+        self.reset_requests()
+
         pass
 
     def tick(self, current_time: int) -> int:
@@ -80,8 +95,15 @@ class Floor:
                   Also removes any Person who explodes
                   Returns the number of exploded people
         """
-        # TO DO
-        return -1
+        exploded_people = 0
+        
+        for i in self.people:
+            i.tick(current_time)
+            if (i.get_anger_level() >= MAX_ANGER):
+                self.people.remove(i)
+                exploded_people += 1
+
+        return exploded_people
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######
