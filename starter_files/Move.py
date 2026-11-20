@@ -42,8 +42,30 @@ class Move:
                   when command_string is "", or "S", or "Q", etc.:
                        sets the corresponding attribute to true
         """
-        # TO DO
-        pass
+
+        self.people_to_pickup = []
+        self.num_people_to_pickup = 0
+        self.total_satisfaction = 0
+
+        self.elevator_id = None
+        self.target_floor = None
+        self.is_pass = False
+        self.is_pickup = False
+        self.is_save = False
+        self.is_quit = False
+
+        if command_string == "":
+            self.is_pass = True
+        elif command_string.lower() == "s":
+            self.is_save = True
+        elif command_string.lower() == "q":
+            self.is_quit = True
+        elif len(command_string) == 4:
+            self.elevator_id = int(command_string[1])
+            self.target_floor = int(command_string[3])
+        elif len(command_string) == 3:
+            self.elevator_id = int(command_string[1])
+            self.is_pickup = True
 
     def is_valid_move(self, elevators: list[Elevator]) -> bool:
         """
@@ -64,8 +86,26 @@ class Move:
                       target_floor is different from the corresponding
                          Elevator's current_floor
         """
-        # TO DO
-        return False
+
+        if self.is_pass_move() or self.is_quit_move() or self.is_save_move():
+            return True
+
+        if not (0 <= self.elevator_id < NUM_ELEVATORS):
+            return False
+
+        elevator = elevators[self.elevator_id]
+        if elevator.is_servicing():
+            return False
+
+        if self.is_pickup_move():
+            return True
+
+        if not (0 <= self.target_floor < NUM_FLOORS):
+            return False
+        
+        return self.target_floor != elevator.get_current_floor()
+
+        
 
     def set_people_to_pickup(self, pickup_list: str, current_floor: int,
                              pickup_floor: Floor) -> None:
@@ -86,8 +126,27 @@ class Move:
                   sets target_floor to be the most extreme floor of those
                      being picked up (furthest up or down)
         """
-        # TO DO
-        pass
+
+        self.people_to_pickup = []
+        self.num_people_to_pickup = 0
+        self.total_satisfaction = 0
+
+        furthest_target = None
+        furthest_distance = -1
+        for char in pickup_list:
+            idx = int(char)
+            self.people_to_pickup.append(idx)
+            self.num_people_to_pickup += 1
+
+            person = pickup_floor.get_person_by_index(idx)
+            self.total_satisfaction += MAX_ANGER - person.get_anger_level()
+
+            distance = abs(person.get_target_floor() - current_floor)
+            if distance > furthest_distance:
+                furthest_distance = distance
+                furthest_target = person.get_target_floor()
+
+        self.target_floor = furthest_target
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######

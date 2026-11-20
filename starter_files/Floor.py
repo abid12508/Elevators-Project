@@ -41,10 +41,14 @@ class Floor:
                  the people on this floor are added or removed.
         """
 
-        #iterate through each item in people
-        #see if people need up or down
-        
-        pass
+        self.has_up_request = False
+        self.has_down_request = False
+
+        for person in self.people:
+            if person.get_target_floor() > person.get_current_floor():
+                self.has_up_request = True
+            elif person.get_target_floor() < person.get_current_floor():
+                self.has_down_request = True
 
     def add_person(self, new_person: Person, request: int) -> None:
         """
@@ -55,14 +59,13 @@ class Floor:
                   request
         """
 
-        if (len(self.people) < MAX_PEOPLE_PER_FLOOR):
+        if len(self.people) < MAX_PEOPLE_PER_FLOOR:
             self.people.append(new_person)
-            if (new_person.get_current_floor() > request):
-                self.has_down_request = True
-                self.has_up_request = False
-            else:
-                self.has_down_request = False
+            self.num_people += 1
+            if request > 0:
                 self.has_up_request = True
+            elif request < 0:
+                self.has_down_request = True
 
     def remove_people(
         self,
@@ -79,13 +82,16 @@ class Floor:
                   After removals, calls reset_requests() to update
                   has_up_request and has_down_request.
         """
-        for i in range(0, max(indices_to_remove)-1):
-            if i in indices_to_remove:
-                self.people.pop(i)
 
+        temp = []
+
+        for i in range(len(self.people)):
+            if i not in indices_to_remove:
+                temp.append(self.people[i])
+
+        self.people = temp
+        self.num_people = len(self.people)
         self.reset_requests()
-
-        pass
 
     def tick(self, current_time: int) -> int:
         """
@@ -95,15 +101,15 @@ class Floor:
                   Also removes any Person who explodes
                   Returns the number of exploded people
         """
-        exploded_people = 0
         
-        for i in self.people:
-            i.tick(current_time)
-            if (i.get_anger_level() >= MAX_ANGER):
-                self.people.remove(i)
-                exploded_people += 1
+        exploded_indices = []
 
-        return exploded_people
+        for i in range(len(self.people)):
+            if self.people[i].tick(current_time):
+                exploded_indices.append(i)
+
+        self.remove_people(exploded_indices)
+        return len(exploded_indices)
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######
