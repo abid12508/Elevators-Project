@@ -3,8 +3,8 @@ Person.py
 
 Copyright 2026 University of Michigan EECS183
 
-<#Name 1#>
-<#Uniqname 1#>
+Evan Roetman
+evancr
 
 <#Name 2#>
 <#Uniqname 2#>
@@ -30,8 +30,29 @@ class Person:
         Effects:  Parses input_string to set attributes
                   An example of input_string is "7f4t8a3".
         """
-        # TO DO
-        pass
+        if input_string == None:
+            self.turn = 0
+            self.anger_level = 0
+            self.current_floor = 0
+            self.target_floor = 0
+        else:
+            # Create list of form:
+            # info = [tick, current_floor, target_floor, anger_level]
+            info = []
+            num = ''
+            for char in input_string:
+                if char.isnumeric():
+                    num += char
+                else:
+                    info.append(int(num))
+                    num = ''
+            info.append(int(num))
+
+            # Assign list items to attributes
+            self.turn = int(info[0])
+            self.current_floor = int(info[1])
+            self.target_floor = int(info[2])
+            self.anger_level = int(info[3])
 
     def tick(self, current_time: int) -> bool:
         """
@@ -44,8 +65,9 @@ class Person:
                   the person has an anger level less than MAX_ANGER,
                   the function will return false.
         """
-        # TO DO
-        return False
+        if current_time % TICKS_PER_ANGER_INCREASE == 0:
+            self.anger_level += 1
+        return self.anger_level >= MAX_ANGER
 
     def print(self) -> None:
         """
@@ -59,8 +81,7 @@ class Person:
 
                   This will print 'f4t8a3' to the screen
         """
-        # TO DO
-        pass
+        print(self.__str__())
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######

@@ -46,8 +46,14 @@ class Elevator:
 
                   Otherwise, does nothing
         """
-        # TO DO
-        pass
+        if current_time % TICKS_PER_ELEVATOR_MOVE == 0 and self.servicing:
+            if self.current_floor < self.target_floor:
+                self.current_floor += 1
+            elif self.current_floor > self.target_floor:
+                self.current_floor -= 1
+
+            if self.current_floor == self.target_floor:
+                self.servicing = False
 
     def service_request(self, floor_num: int) -> None:
         """
@@ -56,8 +62,8 @@ class Elevator:
         Effects:  Sets the target_floor and marks the Elevator as
                   currently servicing
         """
-        # TO DO
-        pass
+        self.target_floor = floor_num
+        self.servicing = True
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######
