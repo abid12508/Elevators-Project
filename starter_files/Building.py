@@ -49,8 +49,12 @@ class Building:
         Effects:  Adds a person to the floor corresponding to the person's
                   current_floor
         """
-        # TO DO
-        pass
+        current_floor = new_person.get_current_floor()
+        target_floor = new_person.get_target_floor()
+
+        request = target_floor - current_floor
+
+        self.floors[current_floor].add_person(new_person, request)
 
     def update(self, move: Move) -> None:
         """Update building based on move.
@@ -66,8 +70,19 @@ class Building:
                    appropriate elevator should be sent to service the
                    target_floor of the move
         """
-        # TO DO
-        pass
+        if move.is_pass_move():
+            return
+
+        elevator_id = move.get_elevator_id()
+        elevator = self.elevators[elevator_id]
+
+        if move.is_pickup_move():
+            current_floor = elevator.get_current_floor()
+            people_to_pickup = move.copy_list_of_people_to_pickup()
+
+            self.floors[current_floor].remove_people(people_to_pickup)
+
+        elevator.service_request(move.get_target_floor())
 
     def tick(self, move: Move) -> int:
         """Process one game tick.
@@ -80,8 +95,19 @@ class Building:
                  of new exploded people. Returns the total number of
                  people that exploded in this tick.
         """
-        # TO DO
-        return -1
+        self.time += 1
+
+        self.update(move)
+
+        for elevator in self.elevators:
+            elevator.tick(self.time)
+
+        total_exploded = 0
+
+        for floor in self.floors:
+            total_exploded += floor.tick(self.time)
+
+        return total_exploded
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######
