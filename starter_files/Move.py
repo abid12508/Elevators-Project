@@ -3,17 +3,17 @@ Move.py
 
 Copyright 2026 University of Michigan EECS183
 
-<#Name 1#>
-<#Uniqname 1#>
+Evan Roetman
+evancr
 
-<#Name 2#>
-<#Uniqname 2#>
+Priyom Chowdhury
+priyomc
 
-<#Name 3#>
-<#Uniqname 3#>
+Logan Santana
+santalog
 
-<#Name 4#>
-<#Uniqname 4#>
+Abid Chowdhury
+abidchow
 
 EECS 183 (Python): Final Project - Elevators
 """
@@ -47,8 +47,8 @@ class Move:
         self.num_people_to_pickup = 0
         self.total_satisfaction = 0
 
-        self.elevator_id = None
-        self.target_floor = None
+        self.elevator_id = 0
+        self.target_floor = 0
         self.is_pass = False
         self.is_pickup = False
         self.is_save = False

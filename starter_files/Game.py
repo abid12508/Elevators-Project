@@ -3,17 +3,17 @@ Game.py
 
 Copyright 2026 University of Michigan EECS183
 
-<#Name 1#>
-<#Uniqname 1#>
+Evan Roetman
+evancr
 
-<#Name 2#>
-<#Uniqname 2#>
+Priyom Chowdhury
+priyomc
 
-<#Name 3#>
-<#Uniqname 3#>
+Logan Santana
+santalog
 
-<#Name 4#>
-<#Uniqname 4#>
+Abid Chowdhury
+abidchow
 
 EECS 183 (Python): Final Project - Elevators
 """
@@ -90,59 +90,127 @@ class Game:
         Note: all of the event strings may have been read from the file
               before check_for_game_end ends the game
         """
-        # used to generate random numbers for spawning a random Person
-        # these three statements will not be needed when you have
-        # finished this function
-        random.seed(1)
-
-        def floor_dist() -> int:
-            return random.randint(0, 9)
-
-        def anger_dist() -> int:
-            return random.randint(0, 3)
-
-        # initialize the game
+        
         self.is_ai_mode = is_ai_mode_in
         self.print_game_start_prompt()
         self.init_game(game_file)
 
-        # play until check_for_game_end() stops the program
-        # you *will* modify this loop
+        for line in game_file:
+            line = line.strip()
+
+            if line == "":
+                continue
+
+            person = Person(line)
+            spawn_time = person.get_turn()
+
+            while self.building.get_time() < spawn_time:
+                self.building.pretty_print_building()
+                self.satisfaction_index.print_satisfaction()
+                self.check_for_game_end()
+
+                next_move = self.get_move()
+                self.update(next_move)
+
+            self.building.spawn_person(person)
+
         while True:
-            # random floor and target_floor
-            # these two statements are not needed in the finished solution
-            src = floor_dist()
-            dst = floor_dist()
-
-            # check that the randomly generated floors differ
-            # none of this if statement will appear in your finished solution
-            # Persons will be read from the file instead
-            if src != dst:
-                # create a person string using an f-string
-                person_str = f'0f{src}t{dst}a{anger_dist()}'
-                p = Person(person_str)
-                self.building.spawn_person(p)
-
-            # print the state of the Building and check for end of game
             self.building.pretty_print_building()
             self.satisfaction_index.print_satisfaction()
             self.check_for_game_end()
 
-            # get and apply the next move
             next_move = self.get_move()
             self.update(next_move)
 
     def is_valid_pickup_list(
-        self, pickup_list: str, pickup_floor_num: int
-    ) -> bool:
-        """
-        Requires: pickup_floor_num is the floor the pickup move was called on
-        Modifies: Nothing
-        Effects:  determines if pickup_list is a valid
-                  list of people to pick up
-        """
-        # TO DO
-        return False
+            self, pickup_list: str, pickup_floor_num: int
+        ) -> bool:
+            """
+            Requires: pickup_floor_num is the floor the pickup move was called on
+            Modifies: Nothing
+            Effects:  determines if pickup_list is a valid
+                    list of people to pick up
+            """
+        
+            pickup_floor = self.building.get_floor_by_floor_num(pickup_floor_num)
+
+            def no_duplicates(str: str) -> bool:
+                '''
+                Requires: Nothing
+                Modifies: Nothing
+                Effects:  Returns True if there are no duplicates in str, otherwise
+                        returns False
+                '''
+                for reference_char in str:
+                    count = 0
+                    for checked_char in str:
+                        if checked_char == reference_char:
+                            count += 1
+                    if count > 1:
+                        return False
+                return True
+
+            def is_strict_digits(str: str) -> bool:
+                '''
+                Requires: Nothing
+                Modifies: Nothing
+                Effects:  Returns True if all characters in str are digits 0-9,
+                        otherwise returns False
+                '''
+                for char in str:
+                    if char not in list('0123456789'):
+                        return False
+                return True
+
+            def max_less_than_num_people_floor(
+                digits: str,
+                num_people: int
+            ) -> bool:
+                '''
+                Requires: All characters in digits are convertible to int
+                Modifies: Nothing
+                Effects:  Returns True if the maximum digit in digits is less than
+                        num_people, otherwise returns False
+                '''
+                ints = [int(char) for char in digits]
+                return max(ints) < num_people
+
+            def all_same_direction(pickup_list) -> bool:
+                '''
+                Requires: No person is traveling to their own floor
+                Modifies: Nothing
+                Effects:  Checks whether each person referenced by pickup_list is
+                        going up or down; returns True if they are all the same,
+                        otherwise returns False.
+                '''
+                overall_direction = None
+                person_direction = ''
+                for p_idx in [int(char) for char in pickup_list]:
+                    person = pickup_floor.get_person_by_index(p_idx)
+                    if (person.get_target_floor() - pickup_floor_num) > 0:
+                        person_direction = 'up'
+                    elif (person.get_target_floor() - pickup_floor_num) < 0:
+                        person_direction = 'down'
+                    else:
+                        raise Exception('Person traveling to their own floor.')
+                    if (
+                        overall_direction != person_direction
+                        and overall_direction is not None
+                    ):
+                        return False
+                    overall_direction = person_direction
+                return True
+           
+            return (
+                no_duplicates(pickup_list)
+                and is_strict_digits(pickup_list)
+                and len(pickup_list) <= ELEVATOR_CAPACITY
+                and max_less_than_num_people_floor(
+                    pickup_list,
+                    pickup_floor.get_num_people()
+                )
+                and all_same_direction(pickup_list)
+            )
 
     ######################################################
     ###### DO NOT MODIFY ANY CODE BENEATH THIS LINE ######

@@ -3,17 +3,17 @@ Floor.py
 
 Copyright 2026 University of Michigan EECS183
 
-<#Name 1#>
-<#Uniqname 1#>
+Evan Roetman
+evancr
 
-<#Name 2#>
-<#Uniqname 2#>
+Priyom Chowdhury
+priyomc
 
-<#Name 3#>
-<#Uniqname 3#>
+Logan Santana
+santalog
 
-<#Name 4#>
-<#Uniqname 4#>
+Abid Chowdhury
+abidchow
 
 EECS 183 (Python): Final Project - Elevators
 """
